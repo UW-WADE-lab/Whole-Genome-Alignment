@@ -1,6 +1,13 @@
 # Whole-Genome-Alignment
 Pipeline workflow to download whole genome sequence data from NCBI Genbank and align to a reference fasta using bwa, samtools, and bcftools
 
+### Steps for Alignment and Mutation Rate Calculation
+1. Pre-alignment documentation steps (see below)
+2. Run alignment script
+3. Use alignment script output (vcf file) in the script for counting whole genome SNPs
+4. Use alignment script output (vcf file) in script for counting individual chromosome SNPs
+5. Outputs from steps 3 and 4 can be used in R scripts for whole-genome and chromosome-level mutation rate calculation
+
 # Pre-Alignment Documentation
 ### Download and install SRAtoolkit
 ```
