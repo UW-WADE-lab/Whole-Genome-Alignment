@@ -1,0 +1,38 @@
+#!/bin/bash
+#SBATCH --account=coenv
+#SBATCH --partition=compute # Queue selection
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=32
+#SBATCH --mem=50G
+#SBATCH --time=72:00:00 # Time limit hrs:min:sec\
+
+#SBATCH --job-name=Sc_chrom_count # Job name
+#SBATCH --mail-type=ALL # Mail events (BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=sgarrote@uw.edu # Where to send mail\
+#SBATCH --output=Sc_chrom_count.log # Standard output/error\
+#SBATCH --chdir=/gscratch/scrubbed/sgarrote
+#SBATCH --export=all
+#SBATCH --error=Sc_chrom_error.log # Standard error
+
+#BEFORE RUNNING THIS SCRIPT:
+#mkdir /gscratch/scrubbed/sgarrote/cachedir
+
+export APPTAINER_CACHEDIR=/gscratch/scrubbed/sgarrote/cachedir
+
+#script for counting chromosome-by-chromosome variants
+
+#set chromosome names from vcf file to iterate through
+CHROM="OW443360.1 OW443361.1 OW443362.1 OW443363.1 OW443364.1 OW443365.1 OW443366.1 OW443367.1 OW443368.1 OW443369.1 OW443370.1 OW443371.1 OW443372.1 OW443373.1 OW443374.1 OW443375.1 OW443376.1 OW443377.1 OW443378.1 OW443379.1 OW443380.1 OW443381.1"
+
+#for each chronomsome name in the vcf file the hom/het/alt allele SNPs are counted using the same command (awk command) for whole genome SNP counting
+#then added to an intermediate file which is appended to a text file that will have one line of SNP counts for each chromosome when all chromosomes are iterated through
+for i in $CHROM
+do
+chromtemp=$(echo $i)
+echo "counting SNPs in $chromtemp"
+grep -w $chromtemp Gg_new_flt.vcf > Gg_chr_temp.txt
+awk '{split($10,SUB,":")} BEGIN {het=0; hom=0; aallele=0} {if(SUB[1]=="0/1") {het+=1} else if(SUB[1]=="1/1") {hom+=1} else if(SUB[1]=="1/2") {aallele+=1}} END {print het, hom, aallele}' Gg_chr_temp.txt >> Gg_chrom_count.txt
+done
+
+#remove intermediate file
+rm Gg_chr_temp.txt
