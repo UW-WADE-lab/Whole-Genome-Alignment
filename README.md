@@ -3,7 +3,7 @@ Pipeline workflow to download whole genome sequence data from NCBI Genbank and a
 
 ### Steps for Alignment and Mutation Rate Calculation
 1. Pre-alignment documentation steps (see below)
-2. Run alignment script (ceetacean_genome_alignment.txt)
+2. Run alignment script (cetacean_genome_alignment.txt)
 3. Use alignment script vcf file output in the script for counting whole genome SNPs (WG_count_snps.txt)
 4. Use alignment script vcf file output in script for counting individual chromosome SNPs (chromsome_level_variant_count.txt)
 5. Outputs from steps 3 and 4 can be used in R scripts for whole-genome (whole-genome-mutation-rate-delphinids.R) and chromosome-level (mutation-rate-by-chromosome.R) mutation rate calculation
