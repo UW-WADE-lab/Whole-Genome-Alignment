@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --account=coenv
+#SBATCH --partition=compute # Queue selection
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=32
+#SBATCH --mem=20G
+#SBATCH --time=24:00:00 # Time limit hrs:min:sec\
+
+#SBATCH --job-name=count_WG # Job name
+#SBATCH --mail-type=ALL # Mail events (BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=sgarrote@uw.edu # Where to send mail\
+#SBATCH --output=WG_count.log # Standard output/error\
+#SBATCH --chdir=/gscratch/scrubbed/sgarrote
+#SBATCH --export=all
+#SBATCH --error=WG_count_error.log # Standard error
+
+# create a blank file for the SNP counts
+> [species name]_wg_snps.txt
+
+# total length of reference genome + append to file
+cat [ref gen filename].fna.fai | awk '{sum+=$2 ; print $0} END{print "sum=",sum}' >> [species name]_wg_snps.txt
+
+# command counting # of homozygous, heterozygous and alternate allele SNPs + append to file
+awk '{split($10,SUB,":")} BEGIN {het=0; hom=0; aallele=0} {if(SUB[1]=="0/1") {het+=1} else if(SUB[1]=="1/1") {hom+=1} else if(SUB[1]=="1/2") {aallele+=1}} END {print het, hom, aallele}' [sample vcf filename] >> [species name]_wg_snps.txt
+
+# NOTE the above command will print the number of heterozygous snps, homozygous snps, and snps with alternate alleles IN THAT ORDER (ex. het# hom# alt-allele#)
