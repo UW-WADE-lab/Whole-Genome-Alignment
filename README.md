@@ -62,12 +62,29 @@ tmux
 fastq-dump --gzip --origfmt --split-files SRR[# from ncbi]
 fastq-dump --gzip --origfmt --split-files SRR[# from ncbi]
 ```
-Files downloaded from NCBI may be missing sequence information that defines forward and reverse reads, which is used by bwa to pair reads. To fix this, first install [BBMap](https://sourceforge.net/projects/bbmap/) using apt-get:
+Files downloaded from NCBI may be missing sequence information that defines forward and reverse reads, which is used by bwa to pair reads. Specifically, we've noticed that the sequence names in these files are often missing the flag that denotes whether a sequence is forward or reverse. You can verify whether your downloaded files have this flag using the following code:
+```
+zcat [SRR_number]_1.fastq.gz | head -n 4
+```
+For example, once I've downloaded SRR10331559, using the following code:
+```
+zcat SRR10331559_1.fastq.gz | head -n 4
+```
+will read the top four lines of the file:
+```
+@1
+CNGGTATGTATTTCTTGTGATAATGAAGGATTTTTATAAGAATGTGATTCACAAAGGTGTGCAAATGTATCAGTCTAGGCAATGTACATAGAGTTCAGGCTTTTCTTTAAAGGTACATGTTTCTTTATATCAACAGGAGTAGAAAAATAGT
++1
+F#FFFFFFFFFF:FF,,FFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFF:FFFFF:FFFFFFFFFFFF:FFFF:FFFFFF:FFFFFFFFFF:FFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+```
+Each entry in a fastq file contains four lines (read more about fastq file format [here](https://support.illumina.com/help/BaseSpace_OLH_009008/Content/Source/Informatics/BS/FileFormat_FASTQ-files_swBS.htm)). The top line is the sequence identifier starting with '@' and can contain a variety of information. In this example, the sequences are identified sequentially, and the first sequence is identified simply as '@1'. In addition to this, bwa looks for a flag in the sequence identifier to determine whether a sequence is forward (/1) or reverse (/2). If those don't exist, bwa doesn't know how to pair the reads. Luckily, we can fix this easily by reformating the files using a tool called BBMap.
+
+First, install [BBMap](https://sourceforge.net/projects/bbmap/) using apt-get:
 ```
 sudo apt-get update
 sudo apt-get -y install bbmap
 ```
-One BBMap is installed, use 'reformat.sh' to reformat fastq files, adding a /1 or /2 to filenames:
+One BBMap is installed, use ['reformat.sh'](https://github.com/BioInfoTools/BBMap/blob/master/sh/reformat.sh) to reformat fastq files, adding a /1 or /2 to filenames:
 ```
 reformat.sh addslash=t in1=[filename]1.fq.gz in2=[filename]2.fq.gz out1=fixed.[filename]1.fq.gz out2=fixed.[filename]2.fq.gz
 ```
