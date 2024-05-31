@@ -3,10 +3,10 @@ Pipeline workflow to download whole genome sequence data from NCBI Genbank and a
 
 ### Steps for Alignment and Mutation Rate Calculation
 1. Pre-alignment documentation steps (see below)
-2. Run alignment script (cetacean_genome_alignment.txt)
+2. Run alignment script (mrate_align_shortread.slurm OR mrate_align_HiC.slurm, depending on the format of your sample file)
 3. Use alignment script vcf file output in the script for counting whole genome SNPs (WG_count_snps.txt)
 4. Use alignment script vcf file output in script for counting individual chromosome SNPs (chromsome_level_variant_count.txt)
-5. Outputs from steps 3 and 4 can be used in R scripts for whole-genome (whole-genome-mutation-rate-delphinids.R) and chromosome-level (mutation-rate-by-chromosome.R) mutation rate calculation
+5. See the "Mutation-rate-variability-in-cetaceans" repository for further analysis and documentation beyond alignment
 
 # Pre-Alignment Documentation
 ### Download and install SRAtoolkit
@@ -91,4 +91,21 @@ reformat.sh addslash=t in1=[filename]1.fq.gz in2=[filename]2.fq.gz out1=fixed.[f
 Once files are reformatted, they can be transferred to Hyak and used in the genome alignment pipeline:
 ```
 scp /path/to/fixed_[filename]?.fq.gz [UW NetID]@klone.hyak.uw.edu:/path/to/directory
+```
+### Indexing reference genomes using bwa
+Once files have been transferred to Hyak, the reference genome which will be aligned to the sample genome needs to be aligned using bwa-mem. First, open an interactive computing session and load the modules required (bwa and bwa-mem2).
+```
+salloc -A mylab -p compute -N 1 -c 4 --mem=10G --time=2:30:00
+module load coenv/bwa-mem2
+module load stf/bwa
+```
+If you are aligning the reference genome to a Hi-C sample genome, indexing using both bwa and bwa-mem2 is necessary. However, if you are aligning a short-read format sample to your reference, only bwa indexing is required. Below, option '-a' is required, but use 'bwtsw' if the genome is long and 'is' if the genome is short. Note that the input reference genome could be .fasta OR .fna.
+```
+bwa index [-a bwtsw OR is] [input_reference].fasta index_prefix
+bwa-mem2 index [input_reference].fasta
+```
+Additionally, generating a .fai file is required for the Hi-C alignment script, and for post processing of any alignment. To do this, load the samtools module and use the following command:
+```
+module load coenv/samtools
+samtools faidx [input_reference].fasta
 ```
