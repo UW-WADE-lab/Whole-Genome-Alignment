@@ -22,7 +22,7 @@ export APPTAINER_CACHEDIR=/gscratch/scrubbed/sgarrote/cachedir
 module load coenv/samtools stf/bwa/0.7.17 coenv/bcftools stf/seqtk/1.3 coenv/jdk stf/bedtools
 
 #set sample ID
-sample=[sample name]
+sample=[filename prefix]
 
 #align to reference genome
 bwa mem -t 32 -k 19 /gscratch/scrubbed/sgarrote/Pmac_reference/GCF_002837175.3_ASM283717v5_genomic.fna ${sample}_1.fastq.gz ${sample}_2.fastq.gz > ${sample}_aligned.sam
